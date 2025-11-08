@@ -1,0 +1,159 @@
+% initialisation
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper, margin=1in]{geometry}
+
+% formatting
+\linespread{2}
+
+% headers and footers (fancyhdr)
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{} % resets hf styles
+
+\setlength{\headheight}{15pt}
+\fancyhead[R]{\thesection/\thesubsection} % top right section numbers
+\renewcommand{\headrulewidth}{0.4pt}
+
+\renewcommand{\footrulewidth}{0.4pt}
+\fancyfoot[L]{V2.0.X \par \today} % bottom left versioning
+\fancyfoot[R]{\thepage} % bottom right page numbers
+
+% maths typesetting
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% graphics
+\usepackage{graphicx}
+\graphicspath{ {./images/} } % image dir
+
+\usepackage{wrapfig}
+
+\usepackage[format=plain, font=it]{caption}
+\usepackage{subcaption}
+
+\DeclareCaptionFormat{custom}{ % custom caption style
+  \linespread{1.2}
+  \textsc{#1#2} \\
+  \protect\small \protect\itshape #3
+}
+\captionsetup{format=custom, labelsep=none}
+
+% tikz / pgfplots
+\usepackage{float}
+%\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18} % version
+
+\usetikzlibrary{intersections, calc, decorations.markings, math} % short for calculator
+\usepgflibrary{fillbetween}
+
+\usepackage{physics}
+\tikzstyle{vector}=[->]
+
+% define curve with direction marker at midpoint
+\tikzset{>=latex}
+\tikzset{
+  ->-/.style={decoration={
+      markings,
+      mark=at position #1 with {\arrow{>}}
+    },
+    postaction={decorate}
+  },
+  ->-/.default=0.5,
+}
+
+%\tikzexternalize % cache diagrams to reduce compile compute
+
+% code formatting
+\usepackage{fancyvrb}
+\usepackage{fvextra}
+\usepackage{minted}
+
+% commands
+
+% maths
+\renewcommand{\d}[1]{\textnormal{d}#1} % dx
+
+% tikz
+
+% use: \arrow{Label text} (inside tikz env)
+% draws an arrow with label text
+\newcommand{\arrow}[1]{\Arrow[tikz={shorten >=.3em, shorten <= .3em}]{ \hspace{0.2em} #1}}
+
+% use: \midpoint{A}{B} (inside tikz env)
+% evaluates to the midpoint between A, B
+\newcommand{\midpoint}[2]{((#1)! 0.5!(#2))}
+
+% use: \tetrahedron (inside tikz enz)
+% instantiates the origin (O) and four vertices (A, B, C, D) of a tetrahedron for use
+\newcommand{\tetrahedron}[0]{
+            \coordinate (O) at (0,.6);
+            \coordinate (A) at (0,3);
+            \coordinate (B) at (-2.5,-.5);
+            \coordinate (C) at (1,-1);
+            \coordinate (D) at (1.8,0);
+            \coordinate (base) at (0,-.5);
+        }
+
+% use: \circles{R}{r}{s} in body
+% draws two circles of radii R, r with origin separation of s
+% draws line between intersection points
+\newcommand{\circles}[3]{               
+  \begin{tikzpicture}
+    % set inputs
+    \def\rA{#1}
+    \def\rB{#2}
+    \def\sep{#3}
+
+    % use them to define new variables
+    \pgfmathsetmacro{\xA}{ (\rA*\rA - \rB*\rB + \dist*\dist) / (2*\dist) }
+    \pgfmathsetmacro{\radicand}{\rA*\rA - \xA*\xA}
+
+    \ifdim\radicand pt > 0pt
+      \pgfmathsetmacro{\h}{sqrt(\radicand)}
+
+      % intersection line
+      \draw[dashed] (\xA, \h) -- (\xA, -\h);
+
+      % circle origins
+      %\draw[fill] (0, 0) circle (1pt);
+      %\draw[fill] (\dist, 0) circle (1pt);
+
+    \else % handle invalid inputs
+      \node[red] at (\dist/2, \rA) {Circles do not intersect};
+    \fi
+
+    \draw (0, 0) circle (\rA);
+    \draw (\dist, 0) circle (\rB);
+  \end{tikzpicture}
+}
+
+\begin{document}
+  
+
+\begin{figure}[h!]
+  \vspace{1em}
+  \centering
+  \begin{tikzpicture}
+
+    \tetrahedron
+
+    \draw (B) -- (C) -- (D) -- cycle; 
+
+    \draw (A) -- (B);
+    \draw (A) -- (C);
+    \draw (A) -- (D); 
+
+    \node[above] at (A) {A};
+    \node[left] at (B) {B};
+    \node[right] at (C) {C};
+    \node[right] at (D) {D};
+
+    \fill (O) circle (1pt) node[right] {O}; 
+
+  \end{tikzpicture}
+  \caption{Two intersecting circles drawn with \texttt{circles}}
+\end{figure}
+
+\end{document}
