@@ -1,23 +1,38 @@
-% initialisation
+%initialisation
 \documentclass[12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[a4paper, margin=1in]{geometry}
+\usepackage[nodisplayskipstretch]{setspace}
+\usepackage{xparse} % allows for more programmatic command definitions
+\usepackage{nameref}
 
 % formatting
-\linespread{2}
+\doublespacing % body text
+\usepackage{footmisc}
+\renewcommand{\footnotelayout}{\setstretch{1.0}} % reset footnote spacing
+
+% palette
+\usepackage{xcolor}
+\definecolor{red}{rgb}{1, 0.2, 0.2}
+\definecolor{green}{rgb}{0.2, 0.7, 0.2}
+\definecolor{blue}{rgb}{0.2, 0.2, 1}
 
 % headers and footers (fancyhdr)
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{} % resets hf styles
 
+\makeatletter
+\newcommand*{\currentname}{\@currentlabelname} % fetch current section name
+\makeatother
 \setlength{\headheight}{15pt}
-\fancyhead[R]{\thesection/\thesubsection} % top right section numbers
+\fancyhead[R]{V2.0.X \par \today} % version top right
+\fancyhead[L]{\thesubsection\ \currentname}
 \renewcommand{\headrulewidth}{0.4pt}
+\setlength{\headsep}{2em}
 
-\renewcommand{\footrulewidth}{0.4pt}
-\fancyfoot[L]{V2.0.X \par \today} % bottom left versioning
-\fancyfoot[R]{\thepage} % bottom right page numbers
+\renewcommand{\footrulewidth}{0pt}
+\fancyfoot[R]{\thepage} % page numbers bottom center
 
 % maths typesetting
 \usepackage{amsmath}
@@ -29,23 +44,26 @@
 
 \usepackage{wrapfig}
 
-\usepackage[format=plain, font=it]{caption}
 \usepackage{subcaption}
+\usepackage{caption}
 
 \DeclareCaptionFormat{custom}{ % custom caption style
-  \linespread{1.2}
-  \textsc{#1#2} \\
-  \protect\small \protect\itshape #3
+  \textsc{#1#2} \\ #3
 }
-\captionsetup{format=custom, labelsep=none}
+\captionsetup{
+  format=custom,
+  font={it, stretch=1.2},
+  labelsep=none
+}
 
 % tikz / pgfplots
+\usepackage{tikz}
 \usepackage{float}
-%\usepackage{tikz}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18} % version
+\usetikzlibrary{shapes.geometric, intersections, calc, decorations.markings, math} % short for calculator
+\usepackage{tikz-3dplot}
 
-\usetikzlibrary{intersections, calc, decorations.markings, math} % short for calculator
 \usepgflibrary{fillbetween}
 
 \usepackage{physics}
@@ -85,75 +103,310 @@
 % evaluates to the midpoint between A, B
 \newcommand{\midpoint}[2]{((#1)! 0.5!(#2))}
 
-% use: \tetrahedron (inside tikz enz)
-% instantiates the origin (O) and four vertices (A, B, C, D) of a tetrahedron for use
-\newcommand{\tetrahedron}[0]{
-            \coordinate (O) at (0,.6);
-            \coordinate (A) at (0,3);
-            \coordinate (B) at (-2.5,-.5);
-            \coordinate (C) at (1,-1);
-            \coordinate (D) at (1.8,0);
-            \coordinate (base) at (0,-.5);
-        }
+\newcommand{\cylinder}[3]{ % \cylinder takes three arguments
+  \def\radius{#1} % take radius
+  \def\height{#2} % take height
+  \def\rotation{#3} % take rotation
+  \def\eccentricity{0.5} % define eccentricity of circular faces (0 to 1)
 
-% use: \circles{R}{r}{s} in body
-% draws two circles of radii R, r with origin separation of s
-% draws line between intersection points
-\newcommand{\circles}[3]{               
-  \begin{tikzpicture}
-    % set inputs
-    \def\rA{#1}
-    \def\rB{#2}
-    \def\sep{#3}
+  % draw the sides of the cylinder
+  \draw[rotate=\rotation] (-\radius, -\height/2)--(-\radius, \height/2);
+  \draw[rotate=\rotation] (\radius, -\height/2)--(\radius, \height/2);
 
-    % use them to define new variables
-    \pgfmathsetmacro{\xA}{ (\rA*\rA - \rB*\rB + \dist*\dist) / (2*\dist) }
-    \pgfmathsetmacro{\radicand}{\rA*\rA - \xA*\xA}
-
-    \ifdim\radicand pt > 0pt
-      \pgfmathsetmacro{\h}{sqrt(\radicand)}
-
-      % intersection line
-      \draw[dashed] (\xA, \h) -- (\xA, -\h);
-
-      % circle origins
-      %\draw[fill] (0, 0) circle (1pt);
-      %\draw[fill] (\dist, 0) circle (1pt);
-
-    \else % handle invalid inputs
-      \node[red] at (\dist/2, \rA) {Circles do not intersect};
-    \fi
-
-    \draw (0, 0) circle (\rA);
-    \draw (\dist, 0) circle (\rB);
-  \end{tikzpicture}
+  % draw the circular faces of the cylinder
+  \draw[rotate=\rotation] (0,\height/2) ellipse [x radius = \radius, y radius = \eccentricity*\radius];
+  \draw[dashed, rotate=\rotation] (\radius, -\height/2) arc (0:180:{\radius} and {\eccentricity*\radius});
+  \draw[rotate=\rotation] (-\radius, -\height/2) arc (180:360:{\radius} and {\eccentricity*\radius});
 }
 
-\begin{document}
-  
 
-\begin{figure}[h!]
-  \vspace{1em}
+\begin{document}
+\VerbatimFootnotes % allow inline verb in footnotes
+
+\begin{center}
+  \large
+  \LaTeX\ Showcase
+  \vspace{0.5\headsep}
+  \hrule
+\end{center}
+
+\section{Overview}
+
+This is a quick showcase of the best (read: flashiest) LaTeX features. Its two main pulls (generally) are dynamic control and vectorisation. 
+A LaTeX project is broadly composed of preamble and body content (which may be split across multiple files for easier organisation on large documents).
+The preamble of a document allows you to define header, footer, and section styles, colour palettes, and any other holistic document formatting easily, so revision-specific changes are easy to implement, signpost, and revert.
+Everything can be programmatically defined with commands and counters in the preamble. 
+For example, all section, subsection, table, and figure labels are customisable and referenced dynamically with \verb|\ref{item:<item_name>}|
+\protect\footnote{We \verb|\label| each one, so \verb|\label{sec:introduction}| is referenced with \verb|\ref{sec:introduction}|.}
+so we never need to go through an entire document and reindex if, say, a section is split into two or a new figure is added. 
+Tables of contents are also dynamic because of this. 
+Labels can be defined for anything, so dynamically referencing anything specific (like requirements) is possible, too. 
+Citations are dynamically imported from a bibliography file, so something like changing referencing style is equally trivial. 
+All of this makes changing larger projects easy, because the tedious work is automatically reevaluated.
+\\
+Tex typesetting is also known for its maths:
+\begin{equation*}
+  \int_{a}^{b} f(x) \d{x} = F(b) - F(a)
+\end{equation*}
+Which is well deserved. We can have inline, too: for $z \in \mathbb{C}, z = x+iy \; \forall \; x, y \in \mathbb{R}$:
+\begin{align*}
+  \sinh z &= \sum_{n=0}^{\infty} \frac{z^{2n+1}}{(2n+1)!} \\
+          &= z + \frac{z^3}{3!} + \frac{z^5}{5!} + ...
+\end{align*}
+Finally, everything is vectorised so can be scaled to any resolution. This is handy for graphics.
+
+\subsection{Theming}
+
+Since everything is centrally defined in the preamble, we can set certain styles that can be tweaked locally and applied globally. Some good examples of this are section numbering styles:
+\begin{minted}[baselinestretch=1.2]{latex}
+\renewcommand{\thesection}{\Roman{section}.}
+\end{minted}
+Which would section numbers to be uppercase roman numerals,
+custom caption styles:
+\begin{minted}[baselinestretch=1.2]{latex}
+\usepackage{caption}
+\DeclareCaptionFormat{custom}{ 
+  \textsc{#1#2} \\ #3 
+}
+\captionsetup{
+  format=custom,
+  font={it, stretch=1.2},
+  labelsep=none
+}
+\end{minted}
+Which would set captions to be the environment type\footnote{That is, a figure, image, table, etc. This is inferred by the compiler automatically.} in \textsc{Small Caps}, the number, and then a newline with the caption contents in italic. We can also set global palettes:
+\begin{minted}[baselinestretch=1.2]{latex}
+\definecolor{red}{rgb}{1, 0.2, 0.2}
+\definecolor{green}{rgb}{0.2, 0.7, 0.2}
+\definecolor{blue}{rgb}{0.2, 0.2, 1}
+\end{minted}
+Which can \textcolor{red}{then be used} \textcolor{green}{throughout} the \textcolor{blue}{document}.
+
+
+\section{Graphics}
+Packages like \texttt{tikzpicture} and \texttt{pgfplots} allow for dynamic, vectorised illustrations. Together they give a coordinate space that can be drawn on, and axes environments for plotting and analysing functions.
+
+\subsection{Tikz}
+
+Tikz is the main graphics package for creating diagrams, and gives an environment similar to Python's \texttt{turtle}. We draw on a grid, and also have access to fancy shapes.
+Here's a simple Tikz example with code:
+
+\begin{minted}[baselinestretch=1.2]{latex}
+\begin{figure}[h] % makes a box on the page
+    \centering % centers the contents in the box
+    \begin{tikzpicture} % start a drawing
+        \draw (0,0) circle (1);
+        \draw[fill=black] (0,0) circle (0.05);
+        \draw (2,0) circle (1);
+        \draw[fill=black] (2,0) circle (0.05);
+        \draw[dashed] (0,0)--(2,0);
+        \node at (1, -1.3) {$s = 2r$}; % text captions
+        
+        \draw (5,0) circle (1);
+        \draw[fill=black] (5,0) circle (0.05);
+        \draw (6,0) circle (1);
+        \draw[fill=black] (6,0) circle (0.05);
+        \draw[dashed] (5,0)--(6,0);
+        \node at (5.5,-1.3) {$s = r$};
+        
+        \draw (9,0) circle (1);
+        \draw[fill=black] (9,0) circle (0.05);
+        \node at (9, -1.3) {$s = 0$};
+    \end{tikzpicture} % close the drawing
+    \caption{Intersection of equivalent circles over $s = [0, 2r]$}
+    \label{fig:simple_domain} % label for referencing
+\end{figure} % close the diagram
+\end{minted}
+\newpage
+Which produces:
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+        \draw (0,0) circle (1);
+        \draw[fill=black] (0,0) circle (0.05);
+        \draw (2,0) circle (1);
+        \draw[fill=black] (2,0) circle (0.05);
+        \draw[dashed] (0,0)--(2,0);
+        \node at (1, -1.3) {$s = 2r$};
+        
+        \draw (5,0) circle (1);
+        \draw[fill=black] (5,0) circle (0.05);
+        \draw (6,0) circle (1);
+        \draw[fill=black] (6,0) circle (0.05);
+        \draw[dashed] (5,0)--(6,0);
+        \node at (5.5,-1.3) {$s = r$};
+        
+        \draw (9,0) circle (1);
+        \draw[fill=black] (9,0) circle (0.05);
+        \node at (9, -1.3) {$s = 0$};
+    \end{tikzpicture}
+    \caption{Intersection of equivalent circles over $s = [0, 2r]$}
+    \label{fig:simple_domain}
+\end{figure}
+
+\subsection{Images}
+
+Including images in Latex is straightforward, and we can use \texttt{tikz} in conjuction with images to annotate graphics easily and dynamically. We can include an image with the \verb|\includegraphics{path/to/image.png}| command, where the image directory is specified in the preamble:
+\begin{figure}[htb!]
+  \centering
+  \includegraphics[width=0.6\textwidth]{model_rear.jpg}
+  \label{img:plain}
+  \caption{A Lego model of a BBC Micro with Archimedes CRT, from behind.}
+\end{figure}
+\newpage
+Now, if we embed this in the \texttt{tikz} environment, we can annotate it.
+\begin{figure}[htb!]
   \centering
   \begin{tikzpicture}
+    \node[anchor=south west,inner sep=0] (image) at (0,0) {\includegraphics[width=0.6\textwidth]{model_rear.jpg}};
+    \begin{scope}[x={(image.south east)},y={(image.north west)}]
+      \draw[red,ultra thick,rounded corners, rotate around={15:(0.6,0.375)}] (0.45,0.25) rectangle (0.75,0.5);
+      \node (a) [red, fill=white, rounded corners] at (0.9, 0.1) {Input and output};
+      \draw[white, thick, ->] (a.north west)--(0.65, 0.25);
 
-    \tetrahedron
-
-    \draw (B) -- (C) -- (D) -- cycle; 
-
-    \draw (A) -- (B);
-    \draw (A) -- (C);
-    \draw (A) -- (D); 
-
-    \node[above] at (A) {A};
-    \node[left] at (B) {B};
-    \node[right] at (C) {C};
-    \node[right] at (D) {D};
-
-    \fill (O) circle (1pt) node[right] {O}; 
-
+      \draw[red,ultra thick,rounded corners] (0.1,0.23) rectangle (0.3,0.45);
+      \node (b) [red, fill=white, rounded corners] at (-0.2, 0.34) {Mouse (wireless)};
+      \draw[white, thick, ->] (b.east)--(0.09, 0.34);
+    \end{scope}
   \end{tikzpicture}
-  \caption{Two intersecting circles drawn with \texttt{circles}}
+  \label{fig:annotated_image}
+  \caption{The same model, annotated.}
 \end{figure}
+
+These can now be dynamically scaled, and all of the annotations will scale with it, while retaining control over their contents. 
+This is superior to externally created or rasterised graphics, as all changes can be made within the \texttt{.tex} file.
+
+\newpage
+
+\subsection{Axes}
+
+The \texttt{pgfplots} packages gives the \texttt{axis} environment within \texttt{tikz}, which allows for plotting points and closed form functions explicitly.
+
+\begin{figure}[H]
+  \centering
+  \begin{subfigure}[t]{0.3\textwidth}
+      \centering
+    \begin{tikzpicture}[scale=1.1]
+        \begin{axis}[
+            title = {$4l(s)$},
+            trig format plots=rad,
+            samples=50,
+            axis equal image,
+            unit vector ratio=3.1415 1 1,
+            axis lines=middle, %enlargelimits=true
+            xmin=-.38, xmax=2.5,
+            ymin=-1.2, ymax=13,
+            xtick={0, 1, 2},
+            ytick={pi, 2*pi, 3*pi, 4*pi},
+            %yticklabels={$\displaystyle -\frac{\pi}{2}$,$\displaystyle \frac{\pi}{2}$}, % swap for normal / inline fractions
+            yticklabels={$\pi$, $2\pi$, $3\pi$, $4\pi$},
+            xticklabels={, 1, 2},
+            %tickwidth=0,
+            xlabel = $s$,
+            ylabel = $y$,
+            xlabel style={at={(axis cs:2.5,0)}, anchor=west},
+            ylabel style={at={(axis cs:0,13)}, anchor=south},
+            axis line style={to-to},
+            grid=major,
+            grid style={dashed,gray!30},
+            ]
+            \addplot [
+                %no markers,
+                %thick,
+                domain=0:2,
+            ] { 
+            (4*asin(x/2)) + 2*pi
+            };
+        \end{axis}
+    \end{tikzpicture}
+    \caption{$4l(s): [0,2] \to [2\pi, 4\pi]$}
+    \label{fig:length_s}
+    %\vspace{-3em}
+\end{subfigure}
+~
+\begin{subfigure}[t]{0.5\textwidth}
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+      title = {$O(s)$},
+      trig format plots=rad,
+      samples=100,
+      axis equal image,
+      unit vector ratio=1 2 1,
+      axis lines=middle, %enlargelimits=true
+      xmin=-.2, xmax=2.2,
+      ymin=-.1, ymax=1,
+      xtick={0, 1, 2},
+      ytick={0, 0.5, 1},
+      %yticklabels={$\displaystyle -\frac{\pi}{2}$,$\displaystyle \frac{\pi}{2}$}, % swap for normal / inline fractions
+      yticklabels={, $\frac{1}{2}$, 1},
+      xticklabels={, 1, 2},
+      %tickwidth=0,
+      xlabel = $s$,
+      ylabel = $y$,
+      xlabel style={at={(axis cs:2.2,0)}, anchor=west},
+      ylabel style={at={(axis cs:0,1)}, anchor=south},
+      axis line style={to-to},
+      grid=major,
+      grid style={dashed,gray!30},
+      ]
+      \addplot [
+      %no markers,
+      %thick,
+      domain=0:2,
+      ] { 
+        (x*sqrt(4-x^2))/(8*asin(x/2)+4*pi) + (1/2)
+      };
+      \node[label={80:{(1.251, 0.609)}},circle,fill,inner sep=.8pt] at (axis cs:1.251,0.609) {};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Result of $O'(s) = 0$}
+  \label{fig:2dos}
+  %\vspace{-3em}
+\end{subfigure}
+\caption{Examples for \texttt{pgfplots}}
+\label{fig:axes}
+\end{figure}
+
+\section{Commands}
+
+Latex also provides programmatic ways of working with documents. The most useful aspect of this is defining specific macros, or \texttt{commands}, in the preamble. These let you program functions that are needed for a document, and can be called wherever they have been defined to be valid (ie. the body, footnotes, figures). As an example, we can define a command to draw, inside the Tikz environment, a cylinder with some specified dimensions and rotation:
+
+\begin{minted}[baselinestretch=1.2, breaklines]{latex}
+\newcommand{\cylinder}[3]{ % \cylinder takes three arguments
+  \def\radius{#1} % take radius
+  \def\height{#2} % take height
+  \def\rotation{#3} % take rotation
+  \def\eccentricity{0.5} % eccentricity of circular 
+
+  % sides 
+  \draw[rotate=\rotation] (-\radius, -\height/2)--(-\radius, \height/2);
+  \draw[rotate=\rotation] (\radius, -\height/2)--(\radius, \height/2);
+
+  % circular faces 
+  \draw[rotate=\rotation] (0,\height/2) ellipse [x radius = \radius, y radius = \eccentricity*\radius];
+  \draw[dashed, rotate=\rotation] (\radius, -\height/2) arc (0:180:{\radius} and {\eccentricity*\radius});
+  \draw[rotate=\rotation] (-\radius, -\height/2) arc (180:360:{\radius} and {\eccentricity*\radius});
+}
+\end{minted}
+We can now call this in the \texttt{tikzpicture} environment with different passed values, so \verb|\cylinder{2}{1}{0}| draws a cylinder of radius 2, height 1, and no rotation\footnote{Tikz has a standard unit for the increments on the grid, but we can also use centimeters, inches, em, points, or pixels instead.}:
+\begin{center}
+  \begin{tikzpicture}
+    \cylinder{2}{1}{0}
+  \end{tikzpicture}
+\end{center}
+And \verb|\cylinder{0.5}{3}{60}| gives
+\begin{center}
+  \begin{tikzpicture}
+    \cylinder{0.5}{3}{60}
+  \end{tikzpicture}
+\end{center}
+We also have access to flow control, iteration, and binary conditionals, so we could (if we wanted to) add an \texttt{origin} argument to the function, and iterate over some $x$ and $y$ values to draw cylinders with different rotations iff $x$ and $y$ are both prime. This can be quite powerful.
+
+\section{Gallery}
+
+Here is a collection of other Tikz graphics to show off some more complex examples.
+
+
 
 \end{document}
