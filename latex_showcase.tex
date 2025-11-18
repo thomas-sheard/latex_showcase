@@ -5,11 +5,14 @@
 \usepackage[nodisplayskipstretch]{setspace}
 \usepackage{xparse} % allows for more programmatic command definitions
 \usepackage{nameref}
+\usepackage[colorlinks=true, urlcolor=blue, linkcolor=blue]{hyperref} % links
+\raggedbottom % better formatting for expected awkward page breaks
 
 % formatting
-\doublespacing % body text
-\usepackage{footmisc}
+\doublespacing % double spaced body text
+\usepackage[bottom]{footmisc}
 \renewcommand{\footnotelayout}{\setstretch{1.0}} % reset footnote spacing
+\setlength{\parindent}{0pt}
 
 % palette
 \usepackage{xcolor}
@@ -26,8 +29,8 @@
 \newcommand*{\currentname}{\@currentlabelname} % fetch current section name
 \makeatother
 \setlength{\headheight}{15pt}
-\fancyhead[R]{V2.0.X \par \today} % version top right
-\fancyhead[L]{\thesubsection\ \currentname}
+\fancyhead[L]{\thesection. \currentname} % section and name top left
+\fancyhead[R]{V2.0.X \par \today} % version and date top right
 \renewcommand{\headrulewidth}{0.4pt}
 \setlength{\headsep}{2em}
 
@@ -43,10 +46,8 @@
 \graphicspath{ {./images/} } % image dir
 
 \usepackage{wrapfig}
-
 \usepackage{subcaption}
 \usepackage{caption}
-
 \DeclareCaptionFormat{custom}{ % custom caption style
   \textsc{#1#2} \\ #3
 }
@@ -62,9 +63,7 @@
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18} % version
 \usetikzlibrary{shapes.geometric, intersections, calc, decorations.markings, math} % short for calculator
-\usepackage{tikz-3dplot}
-
-\usepgflibrary{fillbetween}
+\usepgfplotslibrary{fillbetween}
 
 \usepackage{physics}
 \tikzstyle{vector}=[->]
@@ -103,6 +102,8 @@
 % evaluates to the midpoint between A, B
 \newcommand{\midpoint}[2]{((#1)! 0.5!(#2))}
 
+% use: \cylinder{radius}{height}{rotation}
+% draws cyclinder with specified dimensions and rotation (degrees) anticlockwise
 \newcommand{\cylinder}[3]{ % \cylinder takes three arguments
   \def\radius{#1} % take radius
   \def\height{#2} % take height
@@ -119,7 +120,6 @@
   \draw[rotate=\rotation] (-\radius, -\height/2) arc (180:360:{\radius} and {\eccentricity*\radius});
 }
 
-
 \begin{document}
 \VerbatimFootnotes % allow inline verb in footnotes
 
@@ -132,18 +132,19 @@
 
 \section{Overview}
 
-This is a quick showcase of the best (read: flashiest) LaTeX features. Its two main pulls (generally) are dynamic control and vectorisation. 
+This is a quick showcase of the best (read: flashiest) LaTeX features.
+The source code for this document can be found \href{https://github.com/thomas-sheard/tex_showcase}{\textcolor{blue}{here}}.
+Its two main pulls (generally) are dynamic control and vectorisation. 
 A LaTeX project is broadly composed of preamble and body content (which may be split across multiple files for easier organisation on large documents).
 The preamble of a document allows you to define header, footer, and section styles, colour palettes, and any other holistic document formatting easily, so revision-specific changes are easy to implement, signpost, and revert.
 Everything can be programmatically defined with commands and counters in the preamble. 
-For example, all section, subsection, table, and figure labels are customisable and referenced dynamically with \verb|\ref{item:<item_name>}|
-\protect\footnote{We \verb|\label| each one, so \verb|\label{sec:introduction}| is referenced with \verb|\ref{sec:introduction}|.}
+For example, all section, table, and figure labels are customisable and referenced dynamically with \verb|\ref{item:<item_name>}|\footnote{We \verb|\label| each one, so \verb|\label{sec:introduction}| is referenced with \verb|\ref{sec:introduction}|.}
 so we never need to go through an entire document and reindex if, say, a section is split into two or a new figure is added. 
 Tables of contents are also dynamic because of this. 
 Labels can be defined for anything, so dynamically referencing anything specific (like requirements) is possible, too. 
 Citations are dynamically imported from a bibliography file, so something like changing referencing style is equally trivial. 
 All of this makes changing larger projects easy, because the tedious work is automatically reevaluated.
-\\
+\par
 Tex typesetting is also known for its maths:
 \begin{equation*}
   \int_{a}^{b} f(x) \d{x} = F(b) - F(a)
@@ -153,7 +154,9 @@ Which is well deserved. We can have inline, too: for $z \in \mathbb{C}, z = x+iy
   \sinh z &= \sum_{n=0}^{\infty} \frac{z^{2n+1}}{(2n+1)!} \\
           &= z + \frac{z^3}{3!} + \frac{z^5}{5!} + ...
 \end{align*}
-Finally, everything is vectorised so can be scaled to any resolution. This is handy for graphics.
+Finally, everything is vectorised so can be scaled to any resolution. This is handy for graphics. 
+
+\newpage
 
 \subsection{Theming}
 
@@ -161,7 +164,7 @@ Since everything is centrally defined in the preamble, we can set certain styles
 \begin{minted}[baselinestretch=1.2]{latex}
 \renewcommand{\thesection}{\Roman{section}.}
 \end{minted}
-Which would section numbers to be uppercase roman numerals,
+Which would section numbers to be uppercase roman numerals;
 custom caption styles:
 \begin{minted}[baselinestretch=1.2]{latex}
 \usepackage{caption}
@@ -174,17 +177,18 @@ custom caption styles:
   labelsep=none
 }
 \end{minted}
-Which would set captions to be the environment type\footnote{That is, a figure, image, table, etc. This is inferred by the compiler automatically.} in \textsc{Small Caps}, the number, and then a newline with the caption contents in italic. We can also set global palettes:
+Which would set captions to be the environment type\footnote{That is, a figure, image, table, etc. This is inferred by the compiler automatically.} in \textsc{Small Caps}, the number, and then a newline with the caption contents in italic; and global palettes:
 \begin{minted}[baselinestretch=1.2]{latex}
 \definecolor{red}{rgb}{1, 0.2, 0.2}
 \definecolor{green}{rgb}{0.2, 0.7, 0.2}
 \definecolor{blue}{rgb}{0.2, 0.2, 1}
 \end{minted}
-Which can \textcolor{red}{then be used} \textcolor{green}{throughout} the \textcolor{blue}{document}.
-
+Which can \textcolor{red}{then be used} \textcolor{green}{throughout} the \textcolor{blue}{document}, and will be updated if the palette is changed.
 
 \section{Graphics}
-Packages like \texttt{tikzpicture} and \texttt{pgfplots} allow for dynamic, vectorised illustrations. Together they give a coordinate space that can be drawn on, and axes environments for plotting and analysing functions.
+Packages like \texttt{tikzpicture} and \texttt{pgfplots} allow for dynamic, vectorised illustrations. They give a coordinate space that can be drawn on, and axes environments for plotting and analysing functions.
+
+\newpage 
 
 \subsection{Tikz}
 
@@ -192,7 +196,7 @@ Tikz is the main graphics package for creating diagrams, and gives an environmen
 Here's a simple Tikz example with code:
 
 \begin{minted}[baselinestretch=1.2]{latex}
-\begin{figure}[h] % makes a box on the page
+\begin{figure}[H] % makes a box on the page
     \centering % centers the contents in the box
     \begin{tikzpicture} % start a drawing
         \draw (0,0) circle (1);
@@ -217,9 +221,8 @@ Here's a simple Tikz example with code:
     \label{fig:simple_domain} % label for referencing
 \end{figure} % close the diagram
 \end{minted}
-\newpage
 Which produces:
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \begin{tikzpicture}
         \draw (0,0) circle (1);
@@ -244,6 +247,8 @@ Which produces:
     \label{fig:simple_domain}
 \end{figure}
 
+\newpage 
+
 \subsection{Images}
 
 Including images in Latex is straightforward, and we can use \texttt{tikz} in conjuction with images to annotate graphics easily and dynamically. We can include an image with the \verb|\includegraphics{path/to/image.png}| command, where the image directory is specified in the preamble:
@@ -253,7 +258,7 @@ Including images in Latex is straightforward, and we can use \texttt{tikz} in co
   \label{img:plain}
   \caption{A Lego model of a BBC Micro with Archimedes CRT, from behind.}
 \end{figure}
-\newpage
+
 Now, if we embed this in the \texttt{tikz} environment, we can annotate it.
 \begin{figure}[htb!]
   \centering
@@ -275,8 +280,6 @@ Now, if we embed this in the \texttt{tikz} environment, we can annotate it.
 
 These can now be dynamically scaled, and all of the annotations will scale with it, while retaining control over their contents. 
 This is superior to externally created or rasterised graphics, as all changes can be made within the \texttt{.tex} file.
-
-\newpage
 
 \subsection{Axes}
 
@@ -368,6 +371,8 @@ The \texttt{pgfplots} packages gives the \texttt{axis} environment within \textt
 \label{fig:axes}
 \end{figure}
 
+Since all of these libraries, and many others (perhaps for drawing circuits, or flow charts) plug in to Tikz, all of these features can be used in conjunction with each other, natively. A plot can be annotated, an image can be iterated over, graphs can be dynamically recoloured. This is the advantage of having one centralised system to control development.
+
 \section{Commands}
 
 Latex also provides programmatic ways of working with documents. The most useful aspect of this is defining specific macros, or \texttt{commands}, in the preamble. These let you program functions that are needed for a document, and can be called wherever they have been defined to be valid (ie. the body, footnotes, figures). As an example, we can define a command to draw, inside the Tikz environment, a cylinder with some specified dimensions and rotation:
@@ -407,6 +412,291 @@ We also have access to flow control, iteration, and binary conditionals, so we c
 
 Here is a collection of other Tikz graphics to show off some more complex examples.
 
+\begin{figure}[H]
+    \centering
+    %\vspace{-5.5em}
+    \begin{tikzpicture}[scale=.7]
+        %\node at (1.3,0) {$x$};
+        %\node at (0, 1.3) {$y$};
+        \begin{axis}[
+            %title = {$\arcsin x$},
+            trig format plots=rad,
+            samples=400,
+            axis equal image,
+            axis lines=middle, %enlargelimits=true
+            xmin=-1.2, xmax=1.2,
+            ymin=-.2, ymax=1.2,
+            xtick={-1, 0.6},
+            ytick={-pi/2,pi/2},
+            xticklabels={$-r$, $\frac{s}{2}$},
+            tickwidth=0,
+            xlabel = $x$,
+            ylabel = $y$,
+            xlabel style={at={(axis cs:1.2,0)}, anchor=west},
+            ylabel style={at={(axis cs:0,1.2)}, anchor=south},
+            axis line style={to-to},
+            ]
+            
+            \addplot[name path=f,domain=-1:1] {sqrt(1-x^2)};
+
+            \draw[name path=s, dashed] (axis cs:0.6,sin{acos{0.6}}) -- (axis cs:0.6,0);
+        
+            \addplot [
+                thick,
+                color=blue,
+                fill=gray, 
+                fill opacity=0.1
+            ]
+            fill between[
+                of=s and f,
+                split,
+                every segment no 0/.style={
+                    fill=none,
+                },
+            ];
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Integrated area (shaded).}
+    \label{fig:shaded_integral}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+    
+        \draw[to-] (-3,0)--(-1.2,0);
+        \draw[dashed] (-1.2,0)--(0.2,0);
+        \draw[-to] (.2,0)--(3, 0)node[right]{$x$};
+        
+        \draw[to-] (0,3)node[above]{$y$}--(0,2);
+        \draw[dashed] (0,2)--(0, -2);
+        \draw[-to] (0,-2)--(0, -3);
+        
+        \draw[-to] (1.2, 0.6)--(2, 1);
+        \draw[dashed] (1.2,0.6)--(-1,-.5);
+        \draw[to-] (-2,-1)node[below left]{$z$}--(-1, -.5);
+
+        \node at (2, 2.2) {$y = \sqrt{r_{n}^{2}-x^{2}}$};
+        \draw (2, 0) arc (0:180:2); % y
+        \node at (2, -.3) {$r_{n}$};
+
+        \draw (-.2, 2) arc (90:270:1 and 2);
+        \draw[dashed] (-.2, 2) arc (90:-270:1 and 2);
+        \draw (-.2, 2)--(0.2,2);
+        \draw (-.2, -2)--(0.2,-2);
+
+        %\draw (-.5, 1.9) arc (90:270:0.95 and 1.9);
+
+        %\draw (-.93, 1.7) arc (90:270:0.8 and 1.7);
+
+        %\draw (-1.5, 1.2) arc (90:270:0.4 and 1.2);
+        
+        %\draw (-1.85, .6) arc (90:270:0.2 and .6);
+
+        \draw (.2, 0) ellipse (1 and 2);
+
+        \draw (-1.1, -1.1)--(-1.2, -1.2)node[below, fill = white]{$\d{x}$}--(-.8,-1.2)--(-.7,-1.1);
+        
+    \end{tikzpicture}
+    \caption{Slice of volumetric integration on $\d{x}$.}
+    \label{fig:revolved_volume}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[scale=2]
+    \def\R{1}
+    \def\N{10}
+    \draw (0,0) circle (\R);
+    \foreach \i [evaluate={\ang=\i*360/\N;}] in {0,...,\N}{ 
+        \draw[vector] (\ang:0.5*\R) --++ (\ang:0.4*\R);
+    }
+    \foreach \i [evaluate={\ang=\i*360/\N}] in {0,...,\N}{
+        \draw[vector] (\ang:1.5*\R) -- (\ang:1.1\R);
+    }
+    \node at (0,0) {\textit{out}};
+    \node at (\R, 1.4*\R) {\textit{in}};
+    \end{tikzpicture}
+    \caption{Iterated pressure vectors of a bubble.}
+    \label{fig:pressure}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[scale=2.5]
+
+    \draw (-0.25,0.5) rectangle (0.25,-0.5);
+
+    % field lines
+    % top
+    \draw[decoration={markings, mark = at position 0.5 with {\arrow{<}}}, postaction ={decorate}] (-0.1,0.5) arc (0:37:2);
+    \draw[decoration={markings, mark = at position 0.5 with {\arrow{<}}}, postaction ={decorate}] (-0.2,0.5) arc (0:45:1);
+    \draw[->-] (0,2)--(0,0.5);
+    \draw[decoration={markings, mark = at position 0.5 with {\arrow{<}}}, postaction ={decorate}] (0.2,0.5) arc (180:135:1);
+    \draw[decoration={markings, mark = at position 0.5 with {\arrow{<}}}, postaction ={decorate}] (0.1,0.5) arc (180:143:2);
+    % bottom
+    \draw[->-] (-0.1,-0.5) arc (0:-37:2);
+    \draw[->-] (-0.2,-0.5) arc (0:-45:1);
+    \draw[->-] (0,-0.5)--(0,-2);
+    \draw[->-] (0.2,-0.5) arc (180:225:1);
+    \draw[->-] (0.1,-0.5) arc (180:217:2);
+
+    % theta
+    \draw[dashed] (0, 0)--(0.5,0);
+    \draw[dashed] (-0.5, 0) arc[x radius = 0.5, y radius = 0.13, start angle = 180, end angle = 130];
+    \draw[dashed] (-0.5, 0) arc[x radius = 0.5, y radius = 0.13, start angle = 180, end angle = 360];
+    \draw[dashed] (0.5, 0) arc[x radius = 0.5, y radius = 0.13, start angle = 0, end angle = 50];
+    \draw[dashed] (0,0)--(0.5,0.5);
+    \draw (0.16, 0) arc (0:45:0.16);
+    \normalsize
+    \node[fill=white] at (0.38, 0.15) {$\theta$};
+    \draw[dashed] (0, 0.5) ellipse[x radius = 0.5, y radius = 0.13];
+
+    % pipe
+    \draw[dashed] (0.5, 2.1)--(0.5, -2.1);
+    \draw[dashed] (-0.5, 2.1)--(-0.5, -2.1);
+    \draw (0.6, 2.1)--(0.6, -2.1);
+    \draw (-0.6, 2.1)--(-0.6, -2.1);
+
+    \draw[fill=black] (0,0) circle[radius=0.02];
+  \end{tikzpicture}
+  \caption{Cross-sectional view of the magnetic field lines in a metal pipe.}
+  \label{fig:field_cross_section}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+
+    % floor
+    \draw (-6.5, 0)--(5, 0); 
+
+    % top retort stand
+    \draw (0, 5)--(0, 5.1)--(2, 5.1)--(2, 5); % base
+    \draw (0.2, 5.1)--(0.2, 9)--(0.3, 9)--(0.3, 5.1); % stem
+    \draw (0.7, 5.1)--(0.9, 6)--(1.3, 6)--(1.5, 5.1); % mass
+
+    % desk
+    \draw (2.5, 0)--(2.5, 4.6); % back
+    \draw (5, 4.6)--(-0.1, 4.6)--(-0.1, 5)--(5, 5); % shelf
+
+    % computer
+    \draw (2.8, 5.01)--(4.7, 5.01);
+    \draw (2.8, 5.01) arc (-90:-139.44:0.23);
+    \draw (4.7, 5.01) arc (-90:-40.56:0.23);
+    \draw (2.62, 5.1)--(4.88, 5.1);
+    \draw (2.8, 5.1)--(2.8, 6.3);
+    \draw (2.8, 6.3) arc (180:90:0.1);
+    \draw (2.9, 6.4)--(4.6, 6.4);
+    \draw (4.6, 6.4) arc (90:0:0.1);
+    \draw (4.7, 6.3)--(4.7, 5.1);
+    \draw[thin] (2.9, 6.3) rectangle (4.6, 5.2);
+    %\draw[ultra thin] (2.9, 6.1)--(4.6, 6.1);
+
+    % bottom retort stand
+    \draw (0, 0)--(0, 0.1)--(2, 0.1)--(2, 0); % base
+    \draw (0.2, 0.1)--(0.2, 4)--(0.3, 4)--(0.3, 0.1); % stem
+    \draw (0.7, 0.1)--(0.9, 1)--(1.3, 1)--(1.5, 0.1); % mass
+
+     % lightgate 1
+    \filldraw[fill=white] (0.1, 7.8) rectangle (0.4, 7.6);
+    \draw (0.1, 7.75)--(-0.1, 7.75);
+    \draw (0.1, 7.65)--(-0.1, 7.65);
+    \draw (-0.7, 7.8) rectangle (-0.1, 7.6);
+    \draw (-0.6, 7.8)--(-0.6, 7.6);
+    \draw (-0.2, 7.8)--(-0.2, 7.6);
+
+     % lightgate 2
+    \filldraw[fill=white] (0.1, 1) rectangle (0.4, 0.8);
+    \draw (0.1, 0.95)--(-0.1, 0.95);
+    \draw (0.1, 0.85)--(-0.1, 0.85);
+    \draw (-0.7, 1) rectangle (-0.1, 0.8);
+    \draw (-0.6, 1)--(-0.6, 0.8);
+    \draw (-0.2, 1)--(-0.2, 0.8);
+
+    % wire 1
+    \draw[thick] (-0.6, 7.6) arc (0:-90:0.5);
+    \draw[thick] (-1.1, 7.1) arc (90:180:0.5);
+    \draw[thick] (-1.6, 6.6)--(-1.6, 3.5);
+    \draw[thick] (-1.6, 3.5) arc (0:-90:0.5); 
+
+    % wire 2
+    \draw[thick] (-0.6, 0.8) arc (0:-180:0.5);
+    \draw[thick] (-1.6, 0.8)--(-1.6, 2.4);
+    \draw[thick] (-1.6, 2.4) arc (0:90:0.5);
+
+    % timer
+    \draw (-2.7, 3.2) rectangle (-2.1, 2.4);
+    \draw (-2.65, 3.15) rectangle (-2.15, 2.9);
+
+    % aluminium pipe
+    \filldraw[fill=white] (-0.5, 7.65) rectangle (-0.3, 0.95);
+
+    % glass pipe
+    \filldraw[fill=white] (-0.5, 8.5) rectangle (-0.3, 7.9);
+
+    % magnet tube
+    \draw (-4.15, 6.7) rectangle (-4, 6);
+    \draw (-4.13, 6.65)--(-4.14, 6.75)--(-4.01, 6.75)--(-4.02, 6.65)--(-4.13, 6.65);
+    \draw (-4.13, 6.05) rectangle (-4.02, 6.01);
+    \draw (-4.13, 6.1) rectangle (-4.02, 6.06);
+    \draw (-4.13, 6.15) rectangle (-4.02, 6.11);
+
+    % clamp 1
+    \filldraw[fill=white] (0.1, 8.3) rectangle (0.4, 8.1);
+    \draw (0.1, 8.25)--(-0.2, 8.25);
+    \draw (0.1, 8.15)--(-0.2, 8.15);
+    \filldraw[fill=white] (-0.6, 8.25)--(-0.6, 8.3)--(-0.2, 8.3)--(-0.2, 8.1)--(-0.6, 8.1)--(-0.6, 8.15)--(-0.25, 8.15)--(-0.25, 8.25)--(-0.6, 8.25);
+
+    % clamp 2
+    \filldraw[fill=white] (0.1, 6.8) rectangle (0.4, 6.6);
+    \draw (0.1, 6.75)--(-0.2, 6.75);
+    \draw (0.1, 6.65)--(-0.2, 6.65);
+    \filldraw[fill=white] (-0.6, 6.75)--(-0.6, 6.8)--(-0.2, 6.8)--(-0.2, 6.6)--(-0.6, 6.6)--(-0.6, 6.65)--(-0.25, 6.65)--(-0.25, 6.75)--(-0.6, 6.75);
+
+    % clamp 3
+    \filldraw[fill=white] (0.1, 2) rectangle (0.4, 1.8);
+    \draw (0.1, 1.95)--(-0.2, 1.95);
+    \draw (0.1, 1.85)--(-0.2, 1.85);
+    \filldraw[fill=white] (-0.6, 1.95)--(-0.6, 2)--(-0.2, 2)--(-0.2, 1.8)--(-0.6, 1.8)--(-0.6, 1.85)--(-0.25, 1.85)--(-0.25, 1.95)--(-0.6, 1.95);
+
+    % labels
+    \draw[thin] (0.3, 8.7)--(1, 9)node[right, fill = white]{Retort stand};
+    \draw[thin] (0.3, 3.3)--(1, 3)node[right, fill = white]{Retort stand};
+    
+    \draw[thin] (1.1, 6)--(1.4, 7) node[above right]{Countermass};
+    \draw[thin] (1.4, 0.55)--(1.7, 1) node[above right, fill = white]{Countermass};
+
+    \draw[thin] (-2, 4.6)--node[left, fill = white]{Aluminium pipe}(-0.5,4.3);
+
+    \draw[thin] (-1.3, 8.7)--node[left, fill = white]{Glass guide pipe}(-0.5, 8.4);
+
+    \draw[thin] (-3.8, 2.8)--node[left, fill = white]{Timer}(-2.7, 2.8);
+
+    \draw[thin] (-0.7, 0.9)--node[left, fill = white]{Light gate}(-1.7, 0.9);
+    \draw[thin] (-0.7, 7.7)--node[left, fill = white]{Light gate}(-1.7, 7.7);
+
+    \draw[thin] (-2.2, 6.1) node[left, fill = white]{Wires}--(-1.6, 6);
+
+    \draw[thin] (0.4, 8.2)--(1.5, 8.1);
+    \draw[thin] (0.4, 7.7)--(1.5, 8.18);
+    \draw[thin] (0.4, 6.7)--(1.35, 8.2);
+    \node[fill = white] at (1.9, 8) {Clamps};
+
+    \draw[thin] (0.4, 1.9)--(1.5, 2.2);
+    \draw[thin] (0.4, 0.9)--(1.1, 2);
+    \node[fill = white] at (1.6, 2) {Clamps};
+
+    \draw[thin] (1.2, 4.6)--(2.2, 4.1)node[below right, fill = white]{Desk};
+
+    \draw[thin] (4, 6.4)--(4.5, 7.5) node[above, fill = white]{Computer};
+
+    \draw[thin] (-4.15, 6.4)--(-4.5, 6.7) node[left, fill = white]{Magnet tube};
+    
+    \end{tikzpicture}
+    \caption{Arrangement of equipment.}
+    \label{fig:apparatus}
+\end{figure}
 
 
 \end{document}
